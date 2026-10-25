@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#07070f" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f2f3f9" media="(prefers-color-scheme: light)" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <script src="./assets/thema.js?v=20261024"></script>
+    <link rel="stylesheet" href="./assets/style.css?v=20261024w" />
+    <link rel="stylesheet" href="./assets/sortieren/spiel.css?v=20261024t" />
+    <link rel="stylesheet" href="./assets/sortieren/umgebung.css?v=20261024" />
+    <title>Regale · Browser-Arcade</title>
+    <meta
+      name="description"
+      content="Regale: Sortier-Puzzle mit 50 Leveln – drei gleiche Waren räumen sich weg, Drag & Drop, Combos, verschlossene Kisten und Zeitlevel."
+    />
+  </head>
+  <body style="--ak: var(--gold)">
+    <div class="raster" aria-hidden="true"></div>
+    <a class="skip-link" href="#main">Zum Inhalt springen</a>
+    <header class="kopf">
+      <nav class="container nav" aria-label="Hauptnavigation">
+        <a class="marke" href="./"><span class="logo">▶</span>GAMES</a>
+        <div class="nav-links">
+          <a href="./impressum.html">Impressum</a><a href="./datenschutz.html">Datenschutz</a>
+        </div>
+      </nav>
+    </header>
+    <main id="main" class="container">
+      <div class="spiel-kopf">
+        <div>
+          <h1>REGALE</h1>
+          <p class="unterzeile">
+            Drei gleiche ab ins Lager: Räume die Regale leer. 50 Level mit Combos, Kisten und
+            Zeitlevels.
+          </p>
+        </div>
+      </div>
+
+      <!-- Levelkarte: Kapitel zu je 10 Leveln -->
+      <section id="karte" aria-labelledby="karte-titel">
+        <h2 id="karte-titel" class="sr-only">Levelkarte</h2>
+        <div class="karten-kopf">
+          <button type="button" class="knopf primaer" id="weiter" hidden></button>
+          <p id="karten-text"></p>
+        </div>
+        <div id="level-raster"></div>
+      </section>
+
+      <!-- Spielfeld -->
+      <section id="spielfeld" hidden aria-labelledby="level-titel">
+        <h2 id="level-titel" class="level-titel"></h2>
+        <div class="hud">
+          <div class="hud-feld">
+            <div class="label">Level</div>
+            <div class="wert" id="hud-level">--</div>
+          </div>
+          <div class="hud-feld">
+            <div class="label">Züge</div>
+            <div class="wert" id="hud-zuege">0</div>
+          </div>
+          <div class="hud-feld">
+            <div class="label">★★★ bis</div>
+            <div class="wert" id="hud-ziel">--</div>
+          </div>
+          <div class="hud-feld">
+            <div class="label" id="hud-zeit-label">Zeit</div>
+            <div class="wert" id="hud-zeit">00:00</div>
+          </div>
+          <div class="hud-feld">
+            <div class="label">Bestes</div>
+            <div class="wert" id="hud-sterne">☆☆☆</div>
+          </div>
+        </div>
+        <div class="werkzeuge">
+          <button type="button" class="knopf" id="rueck">↶ Zurück <small>(Z)</small></button>
+          <button type="button" class="knopf" id="tipp">Tipp <small>(H)</small></button>
+          <button type="button" class="knopf" id="neustart">Neustart <small>(R)</small></button>
+          <button type="button" class="knopf" id="hilfe">? Regeln</button>
+          <button type="button" class="knopf" id="zur-karte">Levelkarte</button>
+        </div>
+        <div class="einfuehrung" id="einfuehrung" hidden></div>
+        <p class="meldung" id="meldung" hidden></p>
+        <div class="brett regale-brett" id="brett" role="group" aria-label="Spielfeld"></div>
+        <p class="steuerung">
+          Maus/Touch: Ware ziehen und in einem Fach loslassen – oder antippen und dann das Ziel-Fach
+          antippen. Tastatur: <kbd>Tab</kbd> und <kbd>Enter</kbd>; <kbd>Z</kbd> zurück,
+          <kbd>H</kbd> Tipp, <kbd>R</kbd> neu, <kbd>Esc</kbd> Auswahl weg.
+        </p>
+      </section>
+      <p class="sr-only" id="status" role="status" aria-live="polite"></p>
+
+      <section style="max-width: 420px; margin-top: 36px">
+        <h2 style="font-family: var(--pixel); font-weight: 400; font-size: 0.85rem">
+          Topliste · Sterne gesamt
+        </h2>
+        <div id="topliste"></div>
+        <button class="knopf" id="reset" style="margin-top: 10px">Spielstand zurücksetzen</button>
+      </section>
+
+      <section class="lernbox">
+        <details open>
+          <summary>Anleitung &amp; Regeln</summary>
+          <ul>
+            <li>
+              <strong>Einräumen:</strong> Jedes Fach hat vorne drei Plätze. Zieh eine Ware in ein
+              anderes Fach mit freiem Platz (oder tippe sie an und dann das Fach). Stehen dort
+              <strong>drei gleiche</strong>, räumen sie sich weg.
+            </li>
+            <li>
+              <strong>Nachrücken:</strong> Ist ein Fach vorne leer, rückt die nächste Reihe nach –
+              sie schimmert schon durch. Die kleine Zahl unter dem Fach sagt, wie viele Reihen noch
+              dahinter warten.
+            </li>
+            <li>
+              <strong>Combo:</strong> Räumst du innerhalb von 5 Sekunden mehrere Dreier ab, zählt
+              die Combo hoch. Deine beste Combo steht im Siegdialog.
+            </li>
+            <li>
+              <strong>Kisten</strong> (ab Level 12): Ein Fach mit Kiste ist verschlossen. Die Zahl
+              sagt, wie viele Dreier du noch abräumen musst, bis sie aufgeht.
+            </li>
+            <li>
+              <strong>Zeitlevel</strong> (jedes 5. ab Level 10): Die Uhr läuft rückwärts, sobald du
+              „Uhr starten“ drückst. Ist sie bei null, heißt es nochmal versuchen.
+            </li>
+            <li>
+              <strong>Sterne:</strong> Jedes Level hat einen Zielwert – so viele Züge brauchte die
+              beste Lösung, die der Computer gefunden hat. Drei Sterne gibt es bis zu 10 % darüber,
+              zwei bis zum Anderthalbfachen, sonst einen. Ein geschafftes Level schaltet das nächste
+              frei.
+            </li>
+            <li>
+              <strong>Zurück</strong> nimmt beliebig viele Züge zurück, der
+              <strong>Tipp</strong> zeigt einen guten nächsten Zug, <strong>? Regeln</strong> zeigt
+              die Erklärung erneut. In die <strong>Topliste</strong> geht die Summe deiner Sterne
+              (höchstens 150).
+            </li>
+          </ul>
+        </details>
+      </section>
+
+      <section class="lernbox">
+        <details>
+          <summary>Wie funktioniert der Code?</summary>
+          <ul>
+            <li>
+              <strong>Fächer:</strong> Jedes Fach ist eine Liste von Reihen
+              <code>[[vorne], [dahinter], …]</code>. Der Zustand merkt sich je Fach nur, welche
+              Reihe gerade vorne steht, und die Zahl geräumter Dreier – daran hängen die Kisten.
+            </li>
+            <li>
+              <strong>Drag &amp; Drop:</strong> Pointer-Events (Maus, Finger, Stift gleich
+              behandelt) und <code>document.elementFromPoint()</code> finden das Fach unter dem
+              Finger. Ein kleiner Weg (6 px) unterscheidet Ziehen von Antippen.
+            </li>
+            <li>
+              <strong>Gemeinsamer Rahmen:</strong> Levelkarte, Rückgängig, Tipp, Uhr und Siegdialog
+              stecken in <code>assets/sortieren/rahmen.js</code> und werden von allen drei
+              Sortierspielen benutzt. Das Spiel selbst liefert nur Regeln und Zeichnung.
+            </li>
+            <li>
+              <strong>Zustand:</strong> Ein Zug erzeugt einen <em>neuen</em> Zustand, statt den
+              alten zu verändern. „Rückgängig“ ist darum nur eine Liste alter Zustände.
+            </li>
+            <li>
+              <strong>Der Löser (gewichtetes A*):</strong> Er untersucht immer den Zustand mit der
+              kleinsten Summe aus „Züge bisher“ und „geschätzte Züge noch“ (Binär-Heap) und merkt
+              sich Gesehenes in einer <code>Map</code>. Ein Node-Skript hat damit jedes der 50 Level
+              geprüft und den Zielwert festgelegt; im Browser liefert er den Tipp.
+            </li>
+            <li>
+              <strong>Bildchen:</strong> Alles ist eigene SVG-Grafik im Code
+              (<code>assets/sortieren/symbole.js</code>), keine fremden Bilder. Jede Sorte trägt
+              zusätzlich ein Zeichen – so geht es auch ohne Farbsehen.
+            </li>
+          </ul>
+        </details>
+      </section>
+    </main>
+    <footer class="fuss">
+      <div class="container fuss-in">
+        <span>Browser-Arcade · Open Source</span>
+        <nav aria-label="Rechtliches">
+          <a href="./impressum.html">Impressum</a><a href="./datenschutz.html">Datenschutz</a>
+        </nav>
+      </div>
+    </footer>
+    <script type="module" src="./game.js?v=20261023f"></script>
+  </body>
+</html>
